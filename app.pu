@@ -1,0 +1,23 @@
+from flask import Flask, request, Response
+import requests
+import os
+
+app = Flask(__name__)
+
+API_KEY = "TIPU123"
+
+@app.route('/stream')
+def stream():
+    if request.args.get("key") != API_KEY:
+        return "Unauthorized"
+
+    url = request.args.get("url")
+    if not url:
+        return "No URL"
+
+    r = requests.get(url, stream=True)
+    return Response(r.iter_content(chunk_size=1024),
+                    content_type=r.headers.get('Content-Type'))
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 10000)))
